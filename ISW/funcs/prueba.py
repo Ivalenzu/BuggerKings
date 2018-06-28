@@ -1,6 +1,8 @@
 import re
 import sys
 import time
+from datetime import date
+from dateutil.relativedelta import relativedelta
 import datetime
 import requests
 
@@ -34,7 +36,7 @@ def get_data(symbol, start_date, end_date, cookie, crumb):
     filename = '%s.csv' % (symbol)
     url = "https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%s&period2=%s&interval=1d&events=history&crumb=%s" % (symbol, start_date, end_date, crumb)
     response = requests.get(url, cookies=cookie)
-    with open (filename, 'wb') as handle:
+    with open('/home/ivalenzu/Languages/Django/ISW/ISW/funcs/csv/' + filename, 'wb') as handle:
         for block in response.iter_content(1024):
             handle.write(block)
 
@@ -42,14 +44,8 @@ def get_now_epoch():
     # @see https://www.linuxquestions.org/questions/programming-9/python-datetime-to-epoch-4175520007/#post5244109
     return int(time.time())
 
-def download_quotes(symbol):
-    start_date = 0
+def download_quotes(symbol, mes):
+    start_date = int(time.mktime((date.today() + relativedelta(months=-mes)).timetuple()))  
     end_date = get_now_epoch()
     cookie, crumb = get_cookie_crumb(symbol)
     get_data(symbol, start_date, end_date, cookie, crumb)
-
-symbol = input('Enter the symbol: ')
-print("--------------------------------------------------")
-print("Downloading %s to %s.csv" % (symbol, symbol))
-download_quotes(symbol)
-

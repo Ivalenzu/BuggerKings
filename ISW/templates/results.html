@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% static "" as baseUrl %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buggers Kings</title>
+</head>
+<body>
+    <p>Ganancia estimada: {{ estimate_gain }}</p>
+    <p>Valor estimado de acción: {{ estimate_value }}</p>
+    <p>Simbolo: {{ symbol }} </p>
+    <a href="/">Redirect</a>
+    <img src= "{{ baseUrl }}images/{{symbol}}.jpg" alt="ERROR">
+</body>
+</html>

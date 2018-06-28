@@ -21,9 +21,10 @@ class Aplicacion():
         self.entry2 = ttk.Label(self.raiz, text="Tasa libre de riesgo", font=fuente)
         self.entry3 = ttk.Label(self.raiz, text="Simbolo de la empresa", font=fuente)
         self.entry4 = ttk.Label(self.raiz, text="Tiempo de ejercicio (meses)", font=fuente)
-        self.price = DoubleVar()
-        self.riskfree = DoubleVar()
+        self.price = DoubleVar(value = 0)
+        self.riskfree = DoubleVar(value = 0)
         self.symbol = StringVar()
+        self.estimate = DoubleVar(value = 0)
         self.rangetime = IntVar()
         self.ctext1 = ttk.Entry(self.raiz, textvariable= self.price, width=30)
         self.ctext2 = ttk.Entry(self.raiz, textvariable= self.riskfree, width=30)
@@ -33,6 +34,8 @@ class Aplicacion():
         self.button1 = ttk.Button(self.raiz, text='Salir', command=quit)
         self.button2 = ttk.Button(self.raiz, text='Calcular', \
                        command= self.mainbutton)
+        self.estimate_value = ttk.Label(self.raiz, text="Valor Estimado: ", font=fuente)
+        self.estimate_gain  = ttk.Label(self.raiz, text='Ganancia Estimada: ', font=fuente)
 
         self.entry1.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
         self.ctext1.pack(side=TOP, fill=X, expand=True, padx=5, pady=5)
@@ -42,6 +45,8 @@ class Aplicacion():
         self.ctext3.pack(side=TOP, fill=X, expand=True, padx=5, pady=5)
         self.entry4.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
         self.ctext4.pack(side=TOP, fill=X, expand=True, padx=5, pady=5)
+        self.estimate_value.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
+        self.estimate_gain.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
         self.separ1.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
         self.button2.pack(side=LEFT, fill=BOTH, expand= True, padx=5, pady=5)
         self.button1.pack(side=RIGHT, fill=BOTH, expand=True, padx=5, pady=5)
@@ -53,25 +58,26 @@ class Aplicacion():
         prueba.download_quotes(self.symbol.get(), self.rangetime.get())
         df = functions.icsv('csv/' + self.symbol.get() + '.csv')
         volatility = functions.volatility(df)
-        y_axis, St_pre = functions.iterations(10,5000,float(self.price.get()), \
-                       float(self.riskfree.get()),volatility,self.rangetime.get())
+        y_axis, St_pre, Sf_fin = functions.iterations(10,5000,float(self.price.get()), \
+                                 float(self.riskfree.get()),volatility,self.rangetime.get())
         size_interval = (self.rangetime.get()/12)/5000
         x_axis = np.linspace(size_interval, self.rangetime.get()/12, 5000)
-        estimate = np.exp(-self.riskfree.get()*self.rangetime.get()/12*St_pre)
+        self.estimate_gain.config(text = 'Ganancia estimada: ' + \
+                                   str(np.exp(-self.riskfree.get()*self.rangetime.get()/12*St_pre)))
+        self.estimate_value.config( text = 'Valor estimado: ' + str(Sf_fin))
         self.board = Toplevel()
 
-        self.raiz.update()
-        f = Figure(figsize=(5,5), dpi=100)
+        f = Figure(figsize=(8,5), dpi=100)
         a = f.add_subplot(111)
-        a.plot(x_axis,y_axis)
+        a.plot(x_axis,y_axis, color='green')
 
         canvas = FigureCanvasTkAgg(f, self.board)
-        canvas.show()
-        canvas.get_tk_widget().pack(side=RIGHT, fill=BOTH, expand=False)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=RIGHT, fill=BOTH, expand=True)
 
         toolbar = NavigationToolbar2TkAgg(canvas, self.board)
         toolbar.update()
-        canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=False)
+        canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=5)
 
         print('Terminado!')
 

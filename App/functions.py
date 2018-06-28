@@ -26,6 +26,7 @@ def volatility(df):
 def iterations(x,y,price,riskfree,volatility,time):
     np.random.seed(1)
     St = 0
+    Sf = 0
     time = (time/12)/y
     for i in range(0,x):
         for j in range(0,y):
@@ -40,5 +41,6 @@ def iterations(x,y,price,riskfree,volatility,time):
             list_of = [Z,S]
             Z = [sum(x) for x in zip(*list_of)]
         St = St + max((S[y-1] - price), 0)
+        Sf = Sf + S[y-1]
 
-    return [a / x for a in Z] , St/x 
+    return [a / x for a in Z] , St/x, Sf/x
